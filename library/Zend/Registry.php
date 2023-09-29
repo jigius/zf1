@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -29,6 +30,7 @@
  */
 class Zend_Registry extends ArrayObject
 {
+    private static $memory = array();
     /**
      * Class name of the singleton registry object.
      * @var string
@@ -140,14 +142,12 @@ class Zend_Registry extends ArrayObject
      */
     public static function get($index)
     {
-        $instance = self::getInstance();
-
-        if (!$instance->offsetExists($index)) {
+        if (empty(static::$memory[$index])) {
             require_once 'Zend/Exception.php';
             throw new Zend_Exception("No entry is registered for key '$index'");
         }
 
-        return $instance->offsetGet($index);
+        return static::$memory[$index];
     }
 
     /**
@@ -164,8 +164,7 @@ class Zend_Registry extends ArrayObject
      */
     public static function set($index, $value)
     {
-        $instance = self::getInstance();
-        $instance->offsetSet($index, $value);
+        static::$memory[$index] = $value;
     }
 
     /**
@@ -177,10 +176,7 @@ class Zend_Registry extends ArrayObject
      */
     public static function isRegistered($index)
     {
-        if (self::$_registry === null) {
-            return false;
-        }
-        return self::$_registry->offsetExists($index);
+        return !empty(static::$memory[$index]);
     }
 
     /**
@@ -203,7 +199,6 @@ class Zend_Registry extends ArrayObject
      */
     public function offsetExists($index)
     {
-        return array_key_exists($index, $this);
+        return !empty(static::$memory[$index]);
     }
-
 }
